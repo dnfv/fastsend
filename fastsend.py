@@ -2,6 +2,8 @@ from asyncio.windows_events import NULL
 import os
 import shutil
 import json
+import schedule
+import time
 from turtle import done, goto
 
 def get_user_input(prompt, default=None):
@@ -75,16 +77,13 @@ def move_folders_and_copy_images(incoming_path, completed_path, processed_path, 
                 shutil.rmtree(os.path.join(completed_parent_folder, processed_folder), ignore_errors=True)
             else:
                 print(f"Warning: {processed_folder} diskip,Folder tidak ada di incoming!.")
-
-
-
-
+                
+def job():
+    move_folders_and_copy_images(config["incoming_path"], config["completed_path"], config["processed_path"], config["done_path"])
+    
 def main():
     while True:
-        # Check if there is a previous configuration
-        use_previous = input("Menggunakan path sebelumnya? (y/n): ").lower() == 'y'
-
-        if use_previous and os.path.exists("config.json"):
+        if os.path.exists("config.json"):
             with open("config.json", "r") as config_file:
                 config = json.load(config_file)
         else:
@@ -98,12 +97,10 @@ def main():
             # Save the configuration for future use
             with open("config.json", "w") as config_file:
                 json.dump(config, config_file)
-
-        move_folders_and_copy_images(config["incoming_path"], config["completed_path"], config["processed_path"], config["done_path"])
-        repeat = input("Kirim ke send lagi? (y/n): ").lower()
-        if not (repeat == 'y' or repeat == ''):
-            break
-
+                
+        schedule.every(5).minutes.do(job)
+        schedule.run_pending()
+        time.sleep(1)  # Sleep for 1 second to avoid high CPU usage
 
 if __name__ == "__main__":
     main()
