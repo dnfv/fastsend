@@ -2,7 +2,6 @@ from asyncio.windows_events import NULL
 import os
 import shutil
 import json
-import schedule
 import time
 from turtle import done, goto
 
@@ -75,14 +74,19 @@ def move_folders_and_copy_images(incoming_path, completed_path, processed_path, 
 
                 # Optionally, remove the prefix folder from the Completed folder
                 shutil.rmtree(os.path.join(completed_parent_folder, processed_folder), ignore_errors=True)
+
+                print("Program Executed Successfully...")
             else:
                 print(f"Warning: {processed_folder} diskip,Folder tidak ada di incoming!.")
-                
-def job():
-    move_folders_and_copy_images(config["incoming_path"], config["completed_path"], config["processed_path"], config["done_path"])
-    
+
 def main():
     while True:
+        # Check if there is a previous configuration
+        if os.path.exists("config.json"):
+            use_previous = 'y'
+        else:
+            use_previous = 'n'
+
         if os.path.exists("config.json"):
             with open("config.json", "r") as config_file:
                 config = json.load(config_file)
@@ -91,18 +95,15 @@ def main():
                 "incoming_path": get_user_input("Enter the path to Incoming Folder"),
                 "completed_path": get_user_input("Enter the path to Completed Images"),
                 "processed_path": get_user_input("Enter the path to QC On Progress Images"),
-                "done_path": get_user_input("Enter the path to CHECKED Images")
+                "done_path": get_user_input("Enter the path to QC'ed Images")
             }
 
             # Save the configuration for future use
             with open("config.json", "w") as config_file:
                 json.dump(config, config_file)
-                
-        schedule.every(5).minutes.do(job)
-        schedule.run_pending()
-        time.sleep(1)  # Sleep for 1 second to avoid high CPU usage
+        
+        move_folders_and_copy_images(config["incoming_path"], config["completed_path"], config["processed_path"], config["done_path"])
+        time.sleep(60)
 
 if __name__ == "__main__":
     main()
-    input("Press Enter to exit...")
-
