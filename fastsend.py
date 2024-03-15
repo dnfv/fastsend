@@ -73,7 +73,9 @@ def move_folders_and_copy_images(incoming_path, completed_path, processed_path, 
                     if os.path.exists(done_path):
                         shutil.rmtree(done_path)  # Remove existing destination folder
                         shutil.move(processed_folder_path, done_path)  # Move the processed folder
-
+                    else:
+                        shutil.move(processed_folder_path, done_path)  # Move the processed folder
+                        
                     # Optionally, remove the prefix folder from the Completed folder
                     shutil.rmtree(os.path.join(completed_parent_folder, processed_folder), ignore_errors=True)
 
