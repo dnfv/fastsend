@@ -50,6 +50,11 @@ def move_folders_and_copy_images(incoming_path, completed_path, processed_path, 
     # and move processed folders to _MOVED
     for processed_folder in os.listdir(processed_path):
         processed_folder_path = os.path.join(processed_path, processed_folder)
+        
+        if os.path.isdir(processed_folder_path):
+            if processed_folder == "_Error":
+                # Skip processing folders named "_Error"
+                continue
 
         if os.path.isdir(processed_folder_path):
             # Extract the first word (e.g., G01, G02, D01) from the processed folder name
