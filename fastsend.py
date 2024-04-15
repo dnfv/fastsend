@@ -88,7 +88,10 @@ def move_folders_and_copy_images(incoming_path, completed_path, processed_path, 
                 except Exception as e:
                     # Create Error directory defined above & move it there
                     os.makedirs(error_path, exist_ok=True)
-                    shutil.move(processed_folder_path, error_path)
+                    if os.path.exists(processed_folder_path):
+                        shutil.move(processed_folder_path, error_path)
+                    else:
+                        shutil.move(processed_folder_path, error_path)
                     
                     print(f"An error occurred in if: {e}")
 
@@ -96,7 +99,10 @@ def move_folders_and_copy_images(incoming_path, completed_path, processed_path, 
                 try:
                     # Create Error directory defined above & move it there
                     os.makedirs(error_path, exist_ok=True)
-                    shutil.move(processed_folder_path, error_path)
+                    if os.path.exists(processed_folder_path):
+                        shutil.move(processed_folder_path, error_path)
+                    else:
+                        shutil.move(processed_folder_path, error_path)
 
                     print(f"Warning: {processed_folder} diskip,Folder tidak ada di incoming!.")
                 except Exception as e:
