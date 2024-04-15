@@ -46,6 +46,9 @@ def extract_images_and_delete_prefix(source, destination):
     shutil.rmtree(source, ignore_errors=True)
 
 def move_folders_and_copy_images(incoming_path, completed_path, processed_path, done_path):
+    # Define error directory
+    error_path = os.path.join(processed_path, "_Error")
+    
     # Function to move folders with the same prefix, copy image-type contents to Completed,
     # and move processed folders to _MOVED
     for processed_folder in os.listdir(processed_path):
@@ -83,20 +86,21 @@ def move_folders_and_copy_images(incoming_path, completed_path, processed_path, 
 
                     print("Program Executed Successfully...")
                 except Exception as e:
-                    print(f"An error occurred: {e}")
+                    # Create Error directory defined above & move it there
+                    os.makedirs(error_path, exist_ok=True)
+                    shutil.move(processed_folder_path, error_path)
+                    
+                    print(f"An error occurred in if: {e}")
 
             else:
                 try:
-                    # Define error directory
-                    error_path = os.path.join(processed_path, "_Error")
-
                     # Create Error directory defined above & move it there
                     os.makedirs(error_path, exist_ok=True)
                     shutil.move(processed_folder_path, error_path)
 
                     print(f"Warning: {processed_folder} diskip,Folder tidak ada di incoming!.")
                 except Exception as e:
-                    print(f"An error occurred: {e}")
+                    print(f"An error occurred in else: {e}")
 
 def main():
     while True:
@@ -124,7 +128,7 @@ def main():
         try:
             move_folders_and_copy_images(config["incoming_path"], config["completed_path"], config["processed_path"], config["done_path"])
         except Exception as e:
-            print(f"An error occurred: {e}")
+            print(f"An error occurred in main: {e}")
         time.sleep(60)
 
 if __name__ == "__main__":
