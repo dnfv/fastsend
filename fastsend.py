@@ -89,7 +89,7 @@ def move_folders_and_copy_images(incoming_path, completed_path, processed_path, 
                     # Create Error directory defined above & move it there
                     os.makedirs(error_path, exist_ok=True)
                     if os.path.exists(processed_folder_path):
-                        shutil.rmtree(processed_folder_path)
+                        shutil.move(processed_folder_path, error_path)
                     else:
                         shutil.move(processed_folder_path, error_path)
                     
@@ -100,7 +100,7 @@ def move_folders_and_copy_images(incoming_path, completed_path, processed_path, 
                     # Create Error directory defined above & move it there
                     os.makedirs(error_path, exist_ok=True)
                     if os.path.exists(processed_folder_path):
-                        shutil.rmtree(processed_folder_path)
+                        shutil.move(processed_folder_path, error_path)
                     else:
                         shutil.move(processed_folder_path, error_path)
 
