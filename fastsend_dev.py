@@ -114,24 +114,6 @@ def move_folders_and_copy_images(incoming_path, completed_path, processed_path, 
                     # Log error to text file
                     log_error(f"Error in else block (moving folder to error directory): {e}", processed_path)
 
-def delete_old_error_log(processed_path):
-    """Deletes the error log if it exists."""
-    log_file_path = os.path.join(processed_path, "error_log.txt")
-    if os.path.exists(log_file_path):
-        os.remove(log_file_path)
-
-def display_last_5_errors(processed_path):
-    """Displays the last 5 errors from the error log."""
-    log_file_path = os.path.join(processed_path, "error_log.txt")
-    if os.path.exists(log_file_path):
-        with open(log_file_path, "r") as log_file:
-            lines = log_file.readlines()
-            # Show only the last 5 errors
-            last_5_errors = lines[-5:] if len(lines) >= 5 else lines
-            print("\nLast 5 errors (if available):")
-            for error in last_5_errors:
-                print(error.strip())
-
 def main():
     while True:
         # Check if there is a previous configuration
@@ -154,19 +136,12 @@ def main():
             # Save the configuration for future use
             with open("config.json", "w") as config_file:
                 json.dump(config, config_file)
-
-        # Delete the old error log when the script starts
-        delete_old_error_log(config["processed_path"])
-
-        # Display the last 5 errors if they exist
-        display_last_5_errors(config["processed_path"])
-
+        
         try:
             move_folders_and_copy_images(config["incoming_path"], config["completed_path"], config["processed_path"], config["done_path"])
         except Exception as e:
             # Log error to text file
             log_error(f"Error in main: {e}", config["processed_path"])
-
         time.sleep(60)
 
 if __name__ == "__main__":
