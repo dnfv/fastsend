@@ -1,9 +1,13 @@
-from asyncio.windows_events import NULL
 import os
 import shutil
 import json
 import time
-from turtle import done, goto
+
+def log_error(message, processed_path):
+    """Function to log errors to a text file in the processed path."""
+    log_file_path = os.path.join(processed_path, "error_log.txt")
+    with open(log_file_path, "a") as log_file:
+        log_file.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - {message}\n")
 
 def get_user_input(prompt, default=None):
     # Function to get user input with an optional default value
@@ -27,8 +31,6 @@ def find_completed_parent_folder(incoming_path, completed_path, prefix):
             return os.path.join(completed_path, relative_path)
     return None
 
-#tes komen
-
 def copy_images_to_completed(source, destination):
     # Function to copy only image files with ".jpg" extension to the destination
     for file in os.listdir(source):
@@ -48,7 +50,7 @@ def extract_images_and_delete_prefix(source, destination):
     shutil.rmtree(source, ignore_errors=True)
 
 def move_folders_and_copy_images(incoming_path, completed_path, processed_path, done_path):
-    # Define error directory
+    # Define error directory inside processed_path
     error_path = os.path.join(processed_path, "_Error")
     
     # Function to move folders with the same prefix, copy image-type contents to Completed,
@@ -88,14 +90,15 @@ def move_folders_and_copy_images(incoming_path, completed_path, processed_path, 
 
                     print("Program Executed Successfully...")
                 except Exception as e:
+                    # Log error to text file
+                    log_error(f"Error in if block (moving folder): {e}", processed_path)
+                    
                     # Create Error directory defined above & move it there
                     os.makedirs(error_path, exist_ok=True)
                     if os.path.exists(processed_folder_path):
                         shutil.move(processed_folder_path, error_path)
                     else:
                         shutil.move(processed_folder_path, error_path)
-                    
-                    print(f"An error occurred in if: {e}")
 
             else:
                 try:
@@ -106,9 +109,19 @@ def move_folders_and_copy_images(incoming_path, completed_path, processed_path, 
                     else:
                         shutil.move(processed_folder_path, error_path)
 
-                    print(f"Warning: {processed_folder} diskip,Folder tidak ada di incoming!.")
+                    print(f"Warning: {processed_folder} skipped, folder not found in incoming!")
                 except Exception as e:
-                    print(f"An error occurred in else: {e}")
+                    # Log error to text file
+                    log_error(f"Error in else block (moving folder to error directory): {e}", processed_path)
+
+def delete_error_log(processed_path):
+    # Deletes error_log.txt if it exists in the processed path.
+    log_file_path = os.path.join(processed_path, "error_log.txt")
+    if os.path.exists(log_file_path):
+        os.remove(log_file_path)
+        print(f"{log_file_path} has been deleted.")
+    else:
+        print("No error log to delete.")
 
 def main():
     while True:
@@ -132,11 +145,15 @@ def main():
             # Save the configuration for future use
             with open("config.json", "w") as config_file:
                 json.dump(config, config_file)
-        
+
+        # Delete error log at startup
+        delete_error_log(config["processed_path"])
+
         try:
             move_folders_and_copy_images(config["incoming_path"], config["completed_path"], config["processed_path"], config["done_path"])
         except Exception as e:
-            print(f"An error occurred in main: {e}")
+            # Log error to text file
+            log_error(f"Error in main: {e}", config["processed_path"])
         time.sleep(60)
 
 if __name__ == "__main__":
