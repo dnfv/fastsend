@@ -114,6 +114,15 @@ def move_folders_and_copy_images(incoming_path, completed_path, processed_path, 
                     # Log error to text file
                     log_error(f"Error in else block (moving folder to error directory): {e}", processed_path)
 
+def delete_error_log(processed_path):
+    # Deletes error_log.txt if it exists in the processed path.
+    log_file_path = os.path.join(processed_path, "error_log.txt")
+    if os.path.exists(log_file_path):
+        os.remove(log_file_path)
+        print(f"{log_file_path} has been deleted.")
+    else:
+        print("No error log to delete.")
+
 def main():
     while True:
         # Check if there is a previous configuration
@@ -136,7 +145,10 @@ def main():
             # Save the configuration for future use
             with open("config.json", "w") as config_file:
                 json.dump(config, config_file)
-        
+
+        # Delete error log at startup
+        delete_error_log(config["processed_path"])
+
         try:
             move_folders_and_copy_images(config["incoming_path"], config["completed_path"], config["processed_path"], config["done_path"])
         except Exception as e:
