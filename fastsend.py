@@ -27,6 +27,8 @@ def find_completed_parent_folder(incoming_path, completed_path, prefix):
             return os.path.join(completed_path, relative_path)
     return None
 
+#tes komen
+
 def copy_images_to_completed(source, destination):
     # Function to copy only image files with ".jpg" extension to the destination
     for file in os.listdir(source):
